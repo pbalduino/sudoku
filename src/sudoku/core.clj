@@ -24,29 +24,36 @@
   (println "\n"))
 
 (defn list->candidates [numbers]
-  (map 
-  	(fn [x]
-	 		(if (= x 0) 
- 	    	one-nine 
-   	    [x]))
-		 numbers))
+  (vec (map 
+          (fn [x]
+            (if (= x 0) 
+                one-nine 
+                [x]))
+          numbers)))
 
 (defn solved? [candidates]
-	(nil? (some #(not= (count %) 1) candidates)))
+  (nil? (some #(not= (count %) 1) candidates)))
 
+(defn get-line [candidates line]
+  (subvec candidates (* line 9) (* (inc line) 9)))
+
+(defn remove-value [x lista] 
+  (vec (filter #(not= x %) lista)))
+
+; (vec (map #(if (> (count %) 7) (remove-value 7 %) %) linha))
 (defn eliminate-lines [candidates]
-	(for [line (range 0 9)]
-		(let [vector (subvec candidates (* line 9) (* (inc line) 9))]
-			(loop [head (first vector) vector vector])
-				vector)))
+  (for [line-number (range 0 9)]
+    (loop [candidates candidates]
+      (let [line (get-line candidates line-number)]
+        (vec (map #(if (> (count %) 7) (remove-value 7 %) %) line))))))
 
 (defn insert [part whole start]
-	(let [part-size  (count part)
-		    whole-size (count whole)
-		    begin      (if (= start 0)
-		    	             []
-		    	             (subvec whole 0 start))
-		    end        (subvec whole (+ start part-size))]
+  (let [part-size  (count part)
+        whole-size (count whole)
+        begin      (if (= start 0)
+                       []
+                       (subvec whole 0 start))
+        end        (subvec whole (+ start part-size))]
     (vec (flatten (conj begin part end)))))
 
 (defn -main 
@@ -79,6 +86,6 @@ Passos para resolver um Sudoku:
         candidates (list->candidates numbers)]
     (pretty-print numbers)
     (loop [candidates candidates]
-    	(println (eliminate-lines candidates))
-    	(println (solved? candidates))
-      (println candidates))))
+      ; (println (solved? candidates))
+      ; (println candidates)
+      (println (eliminate-lines candidates)))))
