@@ -47,13 +47,23 @@
       line
       (recur (rest solved) (mapv #(remove-value (first solved) %) line)))))
 
-(join-lines [lines]
-  lines)
+(defn join-lines [lines]
+  (loop [lines lines
+         result []]
+    (if (empty? lines)
+        result
+        (recur (rest lines) 
+               (loop [lines (first lines)
+                      result result]
+                 (if (empty? lines)
+                      result
+                      (do
+                         (recur (rest lines) 
+                                (conj result (first lines))))))))))
 
 (defn eliminate-lines [candidates]
   (join-lines 
-    (let [candidates (break-lines candidates)]
-      (map clear-line candidates))))
+    (map clear-line (break-lines candidates))))
 
 (defn -main 
 "Sudoku Solver
