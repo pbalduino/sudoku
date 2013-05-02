@@ -1,51 +1,28 @@
-(ns sudoku.core)
+(ns sudoku.core
+  (:use [sudoku.pprint]
+        [sudoku.util]))
 
 (def one-nine [1 2 3 4 5 6 7 8 9])
 
-(defn- pretty-print [numbers]
-  (loop [list numbers pos 0]
-    (let [number (first list)]
-      (if (= (mod pos 27) 0)
-        (do
-           (when-not (= pos 0)
-             (print "|"))
-          (print "\n+---------+---------+---------+")
-           (when-not (= pos 81)
-                    (print "\n|")))
-        (:else (if (= (mod pos 9) 0)
-               (print "|\n|         |         |         |\n|")
-               (:else (if (= (mod pos 3) 0)
-                      (print "|"))))))
+(defn- list->candidates [numbers]
+  (mapv 
+    (fn [x]
+      (if (= x 0) 
+          one-nine 
+          [x]))
+    numbers))
 
-      (print (str " " (if (= number 0) " " number) " ")))
-
-    (when-not (empty? list)
-              (recur (rest list) (inc pos))))
-  (println "\n"))
-
-(defn list->candidates [numbers]
-  (vec (map 
-          (fn [x]
-            (if (= x 0) 
-                one-nine 
-                [x]))
-          numbers)))
-
-(defn solved? [candidates]
+(defn- solved? [candidates]
   (nil? (some #(not= (count %) 1) candidates)))
 
-(defn get-line [candidates line]
+(defn- get-line [candidates line]
   (subvec candidates (* line 9) (* (inc line) 9)))
 
-(defn remove-value [x lista] 
-  (vec (filter #(not= x %) lista)))
-
-; (vec (map #(if (> (count %) 7) (remove-value 7 %) %) linha))
-(defn eliminate-lines [candidates]
-  (for [line-number (range 0 9)]
-    (loop [candidates candidates]
-      (let [line (get-line candidates line-number)]
-        (vec (map #(if (> (count %) 7) (remove-value 7 %) %) line))))))
+(defn- remove-value [x list]
+  (vec
+    (if-not (= (count list) 1)
+            (filter #(not= x %) list)
+            list)))
 
 (defn insert [part whole start]
   (let [part-size  (count part)
@@ -54,7 +31,29 @@
                        []
                        (subvec whole 0 start))
         end        (subvec whole (+ start part-size))]
-    (vec (flatten (conj begin part end)))))
+    (flattenv (conj begin part end))))
+
+(defn- break-lines [board]
+  (loop [line-number 0
+         result      []]
+    (if (> line-number 8)
+        result
+        (recur (inc line-number) (conj result (get-line board line-number))))))
+
+(defn clear-line [line]
+  (loop [solved (flatten (filter #(= (count %) 1) line))
+         line   line]
+    (if (empty? solved)
+      line
+      (recur (rest solved) (mapv #(remove-value (first solved) %) line)))))
+
+(join-lines [lines]
+  lines)
+
+(defn eliminate-lines [candidates]
+  (join-lines 
+    (let [candidates (break-lines candidates)]
+      (map clear-line candidates))))
 
 (defn -main 
 "Sudoku Solver
@@ -71,21 +70,17 @@ Passos para resolver um Sudoku:
 4. É feita uma varredura na célula eliminando os candidatos que já estiverem em células preenchidas
 5. Caso ainda existam células com mais de um candidato, aplique a função novamente."
   []
-  (let [board [[0 0 7][0 0 0][4 0 6]
-               [8 0 0][4 0 0][1 7 0]
-               [0 0 0][3 0 0][9 0 5]
+  (let [board [0 0 7   0 0 0   4 0 6
+               8 0 0   4 0 0   1 7 0
+               0 0 0   3 0 0   9 0 5
               
-               [0 0 0][7 0 5][0 0 8]
-               [0 0 0][0 0 0][0 0 0]
-               [4 0 0][2 0 8][0 0 0]
+               0 0 0   7 0 5   0 0 8
+               0 0 0   0 0 0   0 0 0
+               4 0 0   2 0 8   0 0 0
 
-               [7 0 4][0 0 3][0 0 0]
-               [0 5 2][0 0 1][0 0 9]
-               [1 0 8][0 0 0][6 0 0]]
-        numbers    (vec (flatten board))
-        candidates (list->candidates numbers)]
-    (pretty-print numbers)
-    (loop [candidates candidates]
-      ; (println (solved? candidates))
-      ; (println candidates)
-      (println (eliminate-lines candidates)))))
+               7 0 4   0 0 3   0 0 0
+               0 5 2   0 0 1   0 0 9
+               1 0 8   0 0 0   6 0 0]
+        candidates (list->candidates board)]
+    (pretty-print board)
+    (eliminate-lines candidates)))
