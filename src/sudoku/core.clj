@@ -109,9 +109,10 @@ Passos para resolver um Sudoku:
 2. É feita uma varredura na linha eliminando os candidatos que já estiverem em células preenchidas
 3. É feita uma varredura na coluna eliminando os candidatos que já estiverem em células preenchidas
 4. É feita uma varredura na célula eliminando os candidatos que já estiverem em células preenchidas
-5. Caso ainda existam células com mais de um candidato, aplique a função novamente."
-  []
-  (let [board [0 0 7   0 0 0   4 0 6
+5. Caso ainda existam células com mais de um candidato, aplique a função novamente.
+
+
+              [0 0 7   0 0 0   4 0 6
                8 0 0   4 0 0   1 7 0
                0 0 0   3 0 0   9 0 5
               
@@ -122,12 +123,22 @@ Passos para resolver um Sudoku:
                7 0 4   0 0 3   0 0 0
                0 5 2   0 0 1   0 0 9
                1 0 8   0 0 0   6 0 0]
+"
+  []
+  (let [board [0 6 0   3 0 0   8 0 4
+               5 3 7   0 9 0   0 0 0
+               0 4 0   0 0 6   3 0 7
+              
+               0 9 0   0 5 1   2 3 8
+               0 0 0   0 0 0   0 0 0
+               7 1 3   6 2 0   0 4 0
+
+               3 0 6   4 0 0   0 1 0
+               0 0 0   0 6 0   5 2 3
+               1 0 2   0 0 9   0 8 0]
         candidates (list->candidates board)
         lines      (eliminate-lines candidates)]
     (pretty-print (candidates->list lines))
-    (println lines)
-    (println "--- lines")
-    (println (eliminate-lines lines))
-    (println "--- cols lines")
-    (println (eliminate-cols (eliminate-lines lines)))))
+    (pretty-print (candidates->list (eliminate-lines lines)))
+    (pretty-print (candidates->list (eliminate-cols (eliminate-lines lines))))))
 
