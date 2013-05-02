@@ -12,6 +12,15 @@
           [x]))
     numbers))
 
+(defn- candidates->list [numbers]
+  (mapv 
+    (fn [x]
+      (if (= (count x) 1) 
+          (first x)
+          0))
+    numbers))
+
+
 (defn- solved? [candidates]
   (nil? (some #(not= (count %) 1) candidates)))
 
@@ -65,6 +74,16 @@
   (join-lines 
     (map clear-line (break-lines candidates))))
 
+(doseq [l (range 0 9)] (doseq [c (range 0 9)] (print (- (* 9 (inc c)) (inc l)) "")) (println))
+
+(defn rotate-left [candidates]
+  (loop [line (range 0 9) result []]
+    (if (empty? line)
+        result
+        (recur (rest line)
+               (loop [col (range 0 9)
+                      result 
+
 (defn -main 
 "Sudoku Solver
 
@@ -91,6 +110,9 @@ Passos para resolver um Sudoku:
                7 0 4   0 0 3   0 0 0
                0 5 2   0 0 1   0 0 9
                1 0 8   0 0 0   6 0 0]
-        candidates (list->candidates board)]
+        candidates (list->candidates board)
+        lines      (eliminate-lines candidates)
+        rotated    (candidates->list (rotate-left lines))]
     (pretty-print board)
-    (eliminate-lines candidates)))
+    (println lines)
+    (pretty-print rotated)))
