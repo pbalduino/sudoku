@@ -70,10 +70,6 @@
                          (recur (rest lines) 
                                 (conj result (first lines))))))))))
 
-(defn eliminate-lines [candidates]
-  (join-lines 
-    (map clear-line (break-lines candidates))))
-
 (defn rotate-left [candidates]
   (loop [line (range 0 9) result []]
     (if (empty? line)
@@ -91,10 +87,40 @@
     (rotate-left
       (rotate-left candidates))))
 
+(defn subvec-2 [candidates]
+  #(subvec candidates % (+ % 3)))
+
+(defn group-cells-as-lines [candidates]
+  (let [part (subvec-2 candidates)]
+    (concatv
+      (part 0) (part 9) (part 18)
+      (part 3) (part 12) (part 21)
+      (part 6) (part 15) (part 24)
+
+      (part 27) (part 36) (part 45) 
+      (part 30) (part 39) (part 48) 
+      (part 33) (part 42) (part 51) 
+
+      (part 54) (part 63) (part 72)
+      (part 57) (part 66) (part 75)
+      (part 60) (part 69) (part 78))))
+
+(defn group-lines-as-cells [candidates] candidates)
+
+
+(defn eliminate-lines [candidates]
+  (join-lines 
+    (map clear-line (break-lines candidates))))
+
 (defn eliminate-cols [candidates]
   (rotate-right
     (eliminate-lines 
       (rotate-left candidates))))
+
+(defn eliminate-cells [candidates]
+  (group-lines-as-cells 
+    (eliminate-lines
+      (group-cells-as-lines candidates))))
 
 (defn -main 
 "Sudoku Solver
@@ -145,7 +171,9 @@ Passos para resolver um Sudoku:
         (do
           (println)
           (pretty-print (candidates->list candidates))
-          (println candidates))
+          (println candidates)
+          (println)
+          (println (eliminate-lines (group-cells-as-lines candidates))))
         (recur 
           (do
             (print ".")

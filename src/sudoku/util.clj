@@ -8,5 +8,10 @@
   [map]
   (vec (flatten map)))
 
-(defn sqrti [x]
-  (int (Math/sqrt x)))
+(def vec-cat (comp vec concat))
+
+(defn concatv
+  "Returns a vector representing the concatenation of the elements in the supplied colls."
+  [& x]
+    (apply vec-cat x))
+  
