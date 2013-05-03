@@ -105,7 +105,8 @@
       (part 57) (part 66) (part 75)
       (part 60) (part 69) (part 78))))
 
-(defn group-lines-as-cells [candidates] candidates)
+(defn group-lines-as-cells [candidates]
+  (group-cells-as-lines candidates))
 
 
 (defn eliminate-lines [candidates]
@@ -163,27 +164,14 @@ Passos para resolver um Sudoku:
                0 0 0   0 6 0   5 2 3
                1 0 2   0 0 9   0 8 0]
         candidates (list->candidates board)
-        solve      (comp eliminate-cols eliminate-lines)]
+        solve      (comp eliminate-cells eliminate-cols eliminate-lines)]
 
   (loop [candidates candidates]
     (if (or (solved? candidates)
             (= (solve candidates) candidates))
         (do
           (println)
-          (pretty-print (candidates->list candidates))
-          (println candidates)
-          (println)
-          (println (eliminate-lines (group-cells-as-lines candidates))))
+          (pretty-print (candidates->list candidates)))
         (recur 
           (do
-            (print ".")
-            (time (solve candidates))
             (solve candidates)))))))
-    ; (pretty-print (candidates->list lines))
-    ; (pretty-print (candidates->list (eliminate-lines lines)))
-    ; (pretty-print (candidates->list (eliminate-cols (eliminate-lines lines))))
-    ; (pretty-print (candidates->list (eliminate-lines (eliminate-cols (eliminate-lines lines)))))
-    ; (pretty-print (candidates->list (eliminate-cols (eliminate-lines (eliminate-cols (eliminate-lines lines))))))
-    ; (pretty-print (candidates->list (eliminate-lines (eliminate-cols (eliminate-lines (eliminate-cols (eliminate-lines lines)))))))
-    ; (println (solved? (eliminate-lines (eliminate-cols (eliminate-lines (eliminate-cols (eliminate-lines lines)))))))))
-
