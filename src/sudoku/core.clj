@@ -5,21 +5,10 @@
 (def one-nine [1 2 3 4 5 6 7 8 9])
 
 (defn- list->candidates [numbers]
-  (mapv 
-    (fn [x]
-      (if (= x 0) 
-          one-nine 
-          [x]))
-    numbers))
+  (mapv #(if (zero? %) one-nine [%]) numbers))
 
 (defn- candidates->list [numbers]
-  (mapv 
-    (fn [x]
-      (if (= (count x) 1) 
-          (first x)
-          0))
-    numbers))
-
+  (mapv #(if (= (count %) 1) (first %) 0) numbers))
 
 (defn- solved? [candidates]
   (nil? (some #(not= (count %) 1) candidates)))
@@ -71,7 +60,8 @@
                                 (conj result (first lines))))))))))
 
 (defn rotate-left [candidates]
-  (loop [line (range 0 9) result []]
+  (loop [line (range 0 9) 
+         result []]
     (if (empty? line)
         result
         (recur (rest line)
@@ -90,6 +80,7 @@
 (defn subvec-2 [candidates]
   #(subvec candidates % (+ % 3)))
 
+; ugh
 (defn group-cells-as-lines [candidates]
   (let [part (subvec-2 candidates)]
     (concatv
@@ -107,7 +98,6 @@
 
 (defn group-lines-as-cells [candidates]
   (group-cells-as-lines candidates))
-
 
 (defn eliminate-lines [candidates]
   (join-lines 
@@ -136,21 +126,8 @@ Passos para resolver um Sudoku:
 2. É feita uma varredura na linha eliminando os candidatos que já estiverem em células preenchidas
 3. É feita uma varredura na coluna eliminando os candidatos que já estiverem em células preenchidas
 4. É feita uma varredura na célula eliminando os candidatos que já estiverem em células preenchidas
-5. Caso ainda existam células com mais de um candidato, aplique a função novamente.
+5. Caso ainda existam células com mais de um candidato, aplique a função novamente."
 
-
-              [0 0 7   0 0 0   4 0 6
-               8 0 0   4 0 0   1 7 0
-               0 0 0   3 0 0   9 0 5
-              
-               0 0 0   7 0 5   0 0 8
-               0 0 0   0 0 0   0 0 0
-               4 0 0   2 0 8   0 0 0
-
-               7 0 4   0 0 3   0 0 0
-               0 5 2   0 0 1   0 0 9
-               1 0 8   0 0 0   6 0 0]
-"
   []
   (let [board [0 6 0   3 0 0   8 0 4
                5 3 7   0 9 0   0 0 0
@@ -166,11 +143,14 @@ Passos para resolver um Sudoku:
         candidates (list->candidates board)
         solve      (comp eliminate-cells eliminate-cols eliminate-lines)]
 
+  (print "Begin")
+  (pretty-print board)
+  (println)
   (loop [candidates candidates]
     (if (or (solved? candidates)
             (= (solve candidates) candidates))
         (do
-          (println)
+          (print "End")
           (pretty-print (candidates->list candidates)))
         (recur 
           (do
