@@ -4,7 +4,13 @@ Sudoku solver written in Clojure
 
 ## Usage
 
-FIXME
+* Install Leiningen
+
+* Run in the first time:
+lein deps
+
+* Run always you want to run:
+lein run
 
 ## License
 
