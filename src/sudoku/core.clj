@@ -8,17 +8,17 @@
   (mapv #(if (zero? %) one-nine [%]) numbers))
 
 (defn- candidates->list [numbers]
-  (mapv #(if (= (count %) 1) (first %) 0) numbers))
+  (mapv #(if (single? %) (first %) 0) numbers))
 
 (defn- solved? [candidates]
-  (nil? (some #(not= (count %) 1) candidates)))
+  (not-any? not-single? candidates))
 
 (defn- get-line [candidates line]
   (subvec candidates (* line 9) (* (inc line) 9)))
 
 (defn- remove-value [x list]
   (vec
-    (if-not (= (count list) 1)
+    (if-not (single? list)
             (filter #(not= x %) list)
             list)))
 
@@ -39,7 +39,7 @@
         (recur (inc line-number) (conj result (get-line board line-number))))))
 
 (defn clear-line [line]
-  (loop [solved (flatten (filter #(= (count %) 1) line))
+  (loop [solved (flatten (filter single? line))
          line   line]
     (if (empty? solved)
       line
@@ -113,22 +113,7 @@
     (eliminate-lines
       (group-cells-as-lines candidates))))
 
-(defn -main 
-"Sudoku Solver
-
-Regras
-- Tanto uma linha quanto uma coluna devem ser preenchida com valores de 1 a 9 sem repetição
-- As células de 3x3 devem ser preenchidas por valores de 1 a 9 sem repetição
-
-Passos para resolver um Sudoku:
-
-1. Toda célula vazia começa com valores-candidatos de 1 a 9. Células já preenchidas tem apenas um candidato.
-2. É feita uma varredura na linha eliminando os candidatos que já estiverem em células preenchidas
-3. É feita uma varredura na coluna eliminando os candidatos que já estiverem em células preenchidas
-4. É feita uma varredura na célula eliminando os candidatos que já estiverem em células preenchidas
-5. Caso ainda existam células com mais de um candidato, aplique a função novamente."
-
-  []
+(defn -main []
   (let [board [0 6 0   3 0 0   8 0 4
                5 3 7   0 9 0   0 0 0
                0 4 0   0 0 6   3 0 7
@@ -153,5 +138,4 @@ Passos para resolver um Sudoku:
           (print "End")
           (pretty-print (candidates->list candidates)))
         (recur 
-          (do
-            (solve candidates)))))))
+          (solve candidates))))))

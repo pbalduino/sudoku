@@ -15,3 +15,8 @@
   [& x]
     (apply vec-cat x))
   
+(defn single? [v]
+  (= (count v) 1))
+
+(defn not-single? [v]
+  (not (single? v)))
