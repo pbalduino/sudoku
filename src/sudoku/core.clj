@@ -45,6 +45,14 @@
       line
       (recur (rest solved) (mapv #(remove-value (first solved) %) line)))))
 
+(defn eliminate-alone [line]
+  (loop [alone (flattenv (filterv #(= (count %) 1) (vals (group-by identity (flattenv (filterv #(> (count %) 1) line))))))
+         line  line]
+    (println "line " line)
+    (if (empty? alone)
+         line
+         (recur (rest alone) line))))
+
 (defn join-lines [lines]
   (loop [lines lines
          result []]
@@ -55,9 +63,8 @@
                       result result]
                  (if (empty? lines)
                       result
-                      (do
-                         (recur (rest lines) 
-                                (conj result (first lines))))))))))
+                      (recur (rest lines) 
+                             (conj result (first lines)))))))))
 
 (defn rotate-left [candidates]
   (loop [line (range 0 9) 
@@ -70,7 +77,15 @@
                   (if (empty? col)
                       result
                       (recur (rest col)
-                             (conj result (nth candidates (- (* 9 (inc (first col))) (inc (first line))))))))))))
+                             (conj result 
+                                   (nth candidates 
+                                        (- (-> col 
+                                               first 
+                                               inc 
+                                               (* 9)) 
+                                            (-> line 
+                                                first 
+                                                inc)))))))))))
 
 (defn rotate-right [candidates]
   (rotate-left 
@@ -100,8 +115,10 @@
   (group-cells-as-lines candidates))
 
 (defn eliminate-lines [candidates]
-  (join-lines 
-    (map clear-line (break-lines candidates))))
+  (let [line-transformation (comp eliminate-alone clear-line)]
+    (join-lines
+      (map line-transformation
+        (break-lines candidates)))))
 
 (defn eliminate-cols [candidates]
   (rotate-right
@@ -114,17 +131,15 @@
       (group-cells-as-lines candidates))))
 
 (defn -main []
-  (let [board [0 6 0   3 0 0   8 0 4
-               5 3 7   0 9 0   0 0 0
-               0 4 0   0 0 6   3 0 7
-              
-               0 9 0   0 5 1   2 3 8
-               0 0 0   0 0 0   0 0 0
-               7 1 3   6 2 0   0 4 0
-
-               3 0 6   4 0 0   0 1 0
-               0 0 0   0 6 0   5 2 3
-               1 0 2   0 0 9   0 8 0]
+  (let [board [6 4 0 7 1 0 0 0 0
+               0 7 3 8 0 0 0 0 0
+               0 0 2 5 0 9 7 4 0
+               0 5 0 0 8 0 0 0 0
+               0 0 1 0 0 0 8 0 0
+               0 0 0 0 4 0 0 1 0
+               0 1 9 6 0 2 5 0 0
+               0 0 0 0 0 8 1 2 0
+               0 0 0 0 9 1 0 6 7]
         candidates (list->candidates board)
         solve      (comp eliminate-cells eliminate-cols eliminate-lines)]
 
@@ -136,6 +151,7 @@
             (= (solve candidates) candidates))
         (do
           (print "End")
-          (pretty-print (candidates->list candidates)))
+          (pretty-print (candidates->list candidates))
+          (println candidates))
         (recur 
           (solve candidates))))))
