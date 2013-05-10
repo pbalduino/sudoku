@@ -48,10 +48,10 @@
 (defn eliminate-alone [line]
   (loop [alone (flattenv (filterv #(= (count %) 1) (vals (group-by identity (flattenv (filterv #(> (count %) 1) line))))))
          line  line]
-    (println "line " line)
     (if (empty? alone)
          line
-         (recur (rest alone) line))))
+         (recur (rest alone) 
+                (map (fn[x] (if (some #(= (first alone) %) x) [(first alone)] x)) line)))))
 
 (defn join-lines [lines]
   (loop [lines lines
@@ -115,7 +115,7 @@
   (group-cells-as-lines candidates))
 
 (defn eliminate-lines [candidates]
-  (let [line-transformation (comp eliminate-alone clear-line)]
+  (let [line-transformation (comp clear-line)]
     (join-lines
       (map line-transformation
         (break-lines candidates)))))
