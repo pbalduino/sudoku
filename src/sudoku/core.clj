@@ -25,7 +25,7 @@
 (defn insert [part whole start]
   (let [part-size  (count part)
         whole-size (count whole)
-        begin      (if (= start 0)
+        begin      (if (zero? start)
                        []
                        (subvec whole 0 start))
         end        (subvec whole (+ start part-size))]
