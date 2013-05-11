@@ -46,12 +46,14 @@
       (recur (rest solved) (mapv #(remove-value (first solved) %) line)))))
 
 (defn eliminate-alone [line]
-  (loop [alone (flattenv (filterv #(= (count %) 1) (vals (group-by identity (flattenv (filterv #(> (count %) 1) line))))))
-         line  line]
-    (if (empty? alone)
-         line
-         (recur (rest alone) 
-                (map (fn[x] (if (some #(= (first alone) %) x) [(first alone)] x)) line)))))
+  (let [unsolved-cells   (f-flattenv #(> (count %) 1) line)
+        grouped-unsolved (vals (group-by identity unsolved-cells))]
+    (loop [alone    (f-flattenv single? grouped-unsolved)
+           line     line]
+      (if (empty? alone)
+           line
+           (recur (rest alone) 
+                  (map (fn[x] (if (some #(= (first alone) %) x) [(first alone)] x)) line))))))
 
 (defn join-lines [lines]
   (loop [lines lines

@@ -8,12 +8,15 @@
   [map]
   (vec (flatten map)))
 
-(def vec-cat (comp vec concat))
+(defn f-flattenv [pred l]
+  (flattenv
+    (filter pred l)))
 
 (defn concatv
   "Returns a vector representing the concatenation of the elements in the supplied colls."
   [& x]
-    (apply vec-cat x))
+    (let [vec-cat (comp vec concat)]
+      (apply vec-cat x)))
   
 (defn single? [v]
   (= (count v) 1))
